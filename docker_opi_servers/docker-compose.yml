@@ -1,0 +1,23 @@
+version: '3'
+services:
+  cpp-server:
+    build:
+      context: ./decode_server
+    ports:
+      - "5000:5000/udp"
+    networks:
+      - portero-net
+
+  node-server:
+    build:
+      context: ./web_server 
+    ports:
+      - "3000:3000"º
+      - "3001:3001"
+    depends_on:
+      - cpp-server-portero
+    networks:
+      - portero-net
+
+networks:
+  portero-net:

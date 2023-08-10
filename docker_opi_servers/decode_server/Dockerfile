@@ -61,7 +61,7 @@ RUN cmake .
 RUN make -j 8
 
 # Expose port 12000
-EXPOSE 12000
+EXPOSE 5000
 
 # Run your C++ server on port 12000
-CMD ["./server", "12000", "10.1.0.20"]
+CMD ["./server", "12002", "docker.muevetef"]

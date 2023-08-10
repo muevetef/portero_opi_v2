@@ -42,8 +42,8 @@ const tcpServer = net.createServer((client) => {
 });
 
 // Start the TCP server
-tcpServer.listen(3001, () => {
-    console.log('TCP server is listening on port 3001');
+tcpServer.listen(12001, () => {
+    console.log('TCP server is listening on port 12001');
 });
 
 io.on('connection', (socket) => {

@@ -1,4 +1,4 @@
-# Install script for directory: /home/sistemas/Escritorio/portero_opi_v2/decode_server
+# Install script for directory: /home/sistemas/Escritorio/portero_opi_v2/docker_opi_servers/decode_server
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/sistemas/Escritorio/portero_opi_v2/decode_server/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/sistemas/Escritorio/portero_opi_v2/docker_opi_servers/decode_server/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

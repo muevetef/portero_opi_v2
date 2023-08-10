@@ -6,6 +6,6 @@ WORKDIR /app
 
 RUN npm install
 
-EXPOSE 3000 3001
+EXPOSE 12000 12001
 
 CMD ["node", "index.js"]

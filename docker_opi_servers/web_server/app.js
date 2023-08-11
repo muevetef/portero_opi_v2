@@ -3,7 +3,6 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const net = require('net');
-const zlib = require('zlib');
 
 // Use express.json() middleware to parse request bodies
 app.use(express.json());
@@ -42,8 +41,8 @@ const tcpServer = net.createServer((client) => {
 });
 
 // Start the TCP server
-tcpServer.listen(12001, () => {
-    console.log('TCP server is listening on port 12001');
+tcpServer.listen(3001, () => {
+    console.log('TCP server is listening on port 3001');
 });
 
 io.on('connection', (socket) => {

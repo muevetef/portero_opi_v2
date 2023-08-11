@@ -1,5 +1,5 @@
 const http = require('./app')
 
-http.listen(12000, () => {
-    console.log('Servidor en el puerto 12000');
+http.listen(3000, () => {
+    console.log('Servidor en el puerto 3000');
 })

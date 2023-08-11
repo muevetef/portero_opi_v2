@@ -4,20 +4,28 @@ services:
     build:
       context: ./decode_server
     ports:
-      - "12002:12002/udp"
+      - "12001:5000/udp"
+    container_name: cpp-server
     networks:
-      - portero-net
+      custom-net:
+        ipv4_address: 172.20.0.2
 
   node-server:
     build:
       context: ./web_server 
     ports:
-      - "12000:12000"
-      - "12001:12001"
+      - "12000:3000"
+    container_name: node-server
     depends_on:
       - cpp-server
     networks:
-      - portero-net
+      custom-net:
+        ipv4_address: 172.20.0.3
 
 networks:
-  portero-net:
+  custom-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16

@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
         // Create a TCP socket           
         sockaddr_in serverAddr;
         serverAddr.sin_family = AF_INET;
-        serverAddr.sin_port = htons(12001);
+        serverAddr.sin_port = htons(3001);
         serverAddr.sin_addr.s_addr = inet_addr(servAddress);
 
         int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -139,7 +139,7 @@ int main(int argc, char* argv[]) {
                             string jsonData = R"({"qr": ")" + qrCodeData + R"("})";
 
                             // Construct the curl command
-                            string command = "curl -d '" + jsonData + "' -H 'Content-Type: application/json' -X POST http://"+servAddress+":12000/qr";
+                            string command = "curl -d '" + jsonData + "' -H 'Content-Type: application/json' -X POST http://"+servAddress+":3000/qr";
 
                             // Execute the curl command using the system function
                             int result = system(command.c_str());

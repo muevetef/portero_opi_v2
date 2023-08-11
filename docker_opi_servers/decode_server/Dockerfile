@@ -9,7 +9,7 @@ RUN apt-get update && \
         git \
         build-essential \
         cmake \
-        libgtk2.0-dev \
+        curl \
         pkg-config \
         && \
     apt-get clean
@@ -60,8 +60,11 @@ RUN rm CMakeCache.txt
 RUN cmake .
 RUN make -j 8
 
-# Expose port 12000
-EXPOSE 12002
+RUN chmod +x server.sh
 
-# Run your C++ server on port 12000
-CMD ["./server", "12002", "docker.muevetef"]
+# Expose port 12000
+EXPOSE 5000
+
+# Run your C++ server
+CMD ["./server", "5000", "172.20.0.3"]
+#CMD ["./server.sh","node-server", "portero-net"]

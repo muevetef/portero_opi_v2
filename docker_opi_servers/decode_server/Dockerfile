@@ -56,11 +56,10 @@ WORKDIR /app
 COPY . /app
 
 # Set execute permissions
-RUN rm CMakeCache.txt 
+#RUN rm CMakeCache.txt 
 RUN cmake .
 RUN make -j 8
 
-RUN chmod +x server.sh
 
 # Expose port 12000
 EXPOSE 5000

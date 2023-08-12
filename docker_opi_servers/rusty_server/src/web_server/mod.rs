@@ -1,13 +1,13 @@
-use std::net::SocketAddr;
+use std::{net::SocketAddr, sync::Arc};
 
 use axum::Router;
-use crossbeam_channel::Receiver;
+use tokio::sync::broadcast::Receiver;
 use tower_http::services::ServeDir;
 use tracing::info;
 
 use crate::{Frame, QR};
 
-pub async fn run(frame_rx: Receiver<Frame>, qr_rx: Receiver<QR>) {
+pub async fn run(frame_rx: Receiver<Arc<Frame>>, qr_rx: Receiver<QR>) {
     let app = Router::new()
         .nest_service("/", ServeDir::new("public"));
 

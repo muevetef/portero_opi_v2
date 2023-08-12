@@ -36,6 +36,7 @@
         socket.on('barcode', (data) => {
             console.log(data)
         })
+        
         document.querySelector('#btn').addEventListener('click', (evt) => {
             socket.emit('open', 1);
         })

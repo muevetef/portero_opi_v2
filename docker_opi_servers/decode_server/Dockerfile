@@ -6,12 +6,12 @@ WORKDIR /app
 # Install necessary build tools and dependencies
 RUN apt-get update && \
     apt-get install -y \
-        git \
-        build-essential \
-        cmake \
-        curl \
-        pkg-config \
-        && \
+    git \
+    build-essential \
+    cmake \
+    curl \
+    pkg-config \
+    && \
     apt-get clean
 
 # Clone OpenCV from Git repository
@@ -60,6 +60,7 @@ COPY . /app
 RUN cmake .
 RUN make -j 8
 
+RUN apt-get --purge remove -y build-essential cmake pkg-config
 
 # Expose port 12000
 EXPOSE 5000

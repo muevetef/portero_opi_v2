@@ -1,22 +1,18 @@
-use std::{
-    io::{BufReader, BufWriter, Cursor, Write},
-    sync::Arc,
-};
+use std::sync::Arc;
 
 use chrono::Utc;
 use tokio::sync::broadcast::{Receiver, Sender};
-use tracing::{debug, error, info};
+use tracing::{error, info};
 
 use opencv::{
-    core, imgcodecs, objdetect,
+    imgcodecs, objdetect,
     prelude::*,
-    types::{VectorOfPoint, VectorOfu8},
-    Result,
+    types::VectorOfPoint
 };
 
 use crate::{Frame, QR, Point};
 
-pub async fn run(mut frame_rx: Receiver<Arc<Frame>>, qr_sx: Sender<QR>) {
+pub async fn run(mut frame_rx: Receiver<Arc<Frame>>, qr_tx: Sender<QR>) {
     info!("QR scanner started");
 
     let mut last_decode = Utc::now();
@@ -46,9 +42,9 @@ pub async fn run(mut frame_rx: Receiver<Arc<Frame>>, qr_sx: Sender<QR>) {
             }
         };
 
-        if qr.is_some() {
-            let qr = qr.unwrap();
+        if let Some(qr) = qr {
             info!("Detected QR: {}", qr.code);
+            let _ = qr_tx.send(qr);
         }
     }
 }
@@ -61,6 +57,7 @@ fn decode_qr(frame: &Arc<Frame>) -> anyhow::Result<Option<QR>> {
     let mut points = VectorOfPoint::new();
     let mut straight = Mat::default();
     let res = detector.detect_and_decode(&frame_data, &mut points, &mut straight)?;
+    dbg!(&frame_data, &frame_mat);
 
     if points.len() < 4 {
         return Ok(None);
@@ -74,6 +71,13 @@ fn decode_qr(frame: &Arc<Frame>) -> anyhow::Result<Option<QR>> {
                 x: v.x,
                 y: v.y
             }
-        }).collect()
+        }).collect(),
+        frame_size: match frame_data.size() {
+            Ok(size) => Point {
+                x: size.width,
+                y: size.height
+            },
+            Err(_) => Point { x: 0, y: 0 },
+        }
     }))
 }

@@ -2,7 +2,7 @@ use std::{net::SocketAddr, time::Duration, sync::Arc};
 
 use chrono::Utc;
 use tokio::{net::UdpSocket, sync::broadcast::Sender};
-use tracing::{info, error, debug};
+use tracing::{info, error};
 
 use crate::Frame;
 
@@ -23,7 +23,7 @@ pub async fn run(frame_sx: Sender<Arc<Frame>>) {
     let frame_data = include_bytes!("full.jpg");
 
     loop {
-        tokio::time::sleep(Duration::from_millis(100)).await;
+        tokio::time::sleep(Duration::from_millis(500)).await;
         let data = frame_data.to_vec();
         let frame = Frame {
             data,
@@ -37,7 +37,5 @@ pub async fn run(frame_sx: Sender<Arc<Frame>>) {
                 continue;
             }
         }
-
-        debug!("Sent frame");
     }
 }

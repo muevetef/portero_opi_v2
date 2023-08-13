@@ -1,16 +1,30 @@
 use std::{net::SocketAddr, sync::Arc};
 
-use axum::Router;
-use tokio::sync::broadcast::Receiver;
+use axum::{Router, extract::FromRef};
+use tokio::sync::broadcast::Sender;
 use tower_http::services::ServeDir;
 use tracing::info;
 
 use crate::{Frame, QR};
 
-pub async fn run(frame_rx: Receiver<Arc<Frame>>, qr_rx: Receiver<QR>) {
-    let app = Router::new()
-        .nest_service("/", ServeDir::new("public"));
+mod controllers;
 
+#[derive(Clone, FromRef)]
+pub struct AppState {
+    pub frame_tx: Arc<Sender<Arc<Frame>>>,
+    pub qr_tx: Arc<Sender<QR>>
+}
+
+pub async fn run(frame_tx: Sender<Arc<Frame>>, qr_tx: Sender<QR>) {
+    let state = AppState {
+        frame_tx: Arc::new(frame_tx),
+        qr_tx: Arc::new(qr_tx)
+    };
+    
+    let app = Router::new()
+        .merge(controllers::routes(state))
+        .fallback_service(ServeDir::new("public").append_index_html_on_directories(true));
+    
     let addr = SocketAddr::from(([0,0,0,0], 8080));
 
     let server = axum::Server::bind(&addr)

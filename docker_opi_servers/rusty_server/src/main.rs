@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use opencv::core::Point_;
+use serde::{Deserialize, Serialize};
 use tracing::{info, error, Level};
 
 mod web_server;
@@ -11,14 +11,15 @@ pub struct Frame {
     pub timestamp: DateTime<Utc>
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct QR {
     pub code: String,
     pub timestamp: DateTime<Utc>,
-    pub points: Vec<Point<i32>>
+    pub points: Vec<Point<i32>>,
+    pub frame_size: Point<i32>
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Point<T> {
     pub x: T,
     pub y: T
@@ -35,7 +36,7 @@ async fn main() -> anyhow::Result<()> {
     let (qr_tx, _) = tokio::sync::broadcast::channel(64);
 
     let tasks = vec![
-        tokio::spawn(web_server::run(frame_tx.subscribe(), qr_tx.subscribe())),
+        tokio::spawn(web_server::run(frame_tx.clone(), qr_tx.clone())),
         tokio::spawn(qr_scanner::run(frame_tx.subscribe(), qr_tx.clone())),
         tokio::spawn(frame_receiver::run(frame_tx.clone()))
     ];

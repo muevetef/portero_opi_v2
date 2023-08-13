@@ -1,50 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Visualizador</title>
     <script src="/socket.io/socket.io.js"></script>
-</head>
+  </head>
 
-<body>
+  <body>
     <h1>WEB ROOM</h1>
-    <img src="" alt="" id="play">
+    <img src="" alt="" id="play" />
     <button id="btn">Enviar</button>
     <script>
-        const socket = io()
-        socket.on('connect', data => {
-            socket.emit('storeClientInfo', { name: 'web' })
-        })
-        // Listen for image data from the server
+      const socket = io();
+      socket.on("connect", (data) => {
+        socket.emit("storeClientInfo", { name: "web" });
+      });
+      // Listen for image data from the server
 
-        socket.on('frame', (image) => {
-            //console.log(image)
-            // Create a blob from the received binary data
-            const blob = new Blob([image], { type: 'image/jpeg' });
+      socket.on("frame", (image) => {
+        //console.log(image)
+        // Create a blob from the received binary data
+        const blob = new Blob([image], { type: "image/jpeg" });
 
-            // Create a URL for the blob and set it as the image source
-            const imageURL = URL.createObjectURL(blob);
+        // Create a URL for the blob and set it as the image source
+        const imageURL = URL.createObjectURL(blob);
 
-            const img = document.getElementById('play')
-            //img.src = `data:image/jpeg;base64,${image}`
-            img.src = imageURL
-           
-        })
-        socket.on('barcode', (data) => {
-            console.log(data)
-        })
-        
-        document.querySelector('#btn').addEventListener('click', (evt) => {
-            socket.emit('open', 1);
-        })
-        socket.on('open', (data) => {
-            console.log(data)
-        })
+        const img = document.getElementById("play");
+        //img.src = `data:image/jpeg;base64,${image}`
+        img.src = imageURL;
 
+        setTimeout(() => {
+          URL.revokeObjectURL(imageURL);
+          //console.log("Remove revokeURL");
+        }, 1000 / 30);
+      });
+      socket.on("barcode", (data) => {
+        console.log(data);
+      });
+
+      document.querySelector("#btn").addEventListener("click", (evt) => {
+        socket.emit("open", 1);
+      });
+      socket.on("open", (data) => {
+        console.log(data);
+      });
     </script>
-</body>
-
+  </body>
 </html>

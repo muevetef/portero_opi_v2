@@ -1,24 +1,27 @@
 use std::{net::SocketAddr, sync::Arc};
 
 use axum::{Router, extract::FromRef};
-use tokio::sync::broadcast::Sender;
+use tokio::sync::{broadcast, mpsc};
+
 use tower_http::services::ServeDir;
 use tracing::info;
 
-use crate::{Frame, QR};
+use crate::{Frame, QR, EspMessage};
 
 mod controllers;
 
 #[derive(Clone, FromRef)]
 pub struct AppState {
-    pub frame_tx: Arc<Sender<Arc<Frame>>>,
-    pub qr_tx: Arc<Sender<QR>>
+    pub frame_tx: Arc<broadcast::Sender<Arc<Frame>>>,
+    pub qr_tx: Arc<broadcast::Sender<QR>>,
+    pub esp_msg_tx: mpsc::Sender<EspMessage>
 }
 
-pub async fn run(frame_tx: Sender<Arc<Frame>>, qr_tx: Sender<QR>) {
+pub async fn run(frame_tx: broadcast::Sender<Arc<Frame>>, qr_tx: broadcast::Sender<QR>, esp_msg_tx: mpsc::Sender<EspMessage>) {
     let state = AppState {
         frame_tx: Arc::new(frame_tx),
-        qr_tx: Arc::new(qr_tx)
+        qr_tx: Arc::new(qr_tx),
+        esp_msg_tx
     };
     
     let app = Router::new()

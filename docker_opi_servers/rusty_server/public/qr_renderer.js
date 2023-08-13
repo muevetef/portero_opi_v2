@@ -67,9 +67,9 @@ class QRRenderer {
                 let strokeStarted = false;
 
                 function translate(position) {
-                    const scaleX = imgSize.x / qr.frame_size.x
-                    const scaleY = imgSize.y / qr.frame_size.y
-                
+                    const scaleX = imgSize.width / qr.frame_size.x
+                    const scaleY = imgSize.height / qr.frame_size.y
+                    console.log(scaleX, scaleY)
                     return {
                         x: position.x * scaleX,
                         y: position.y * scaleY
@@ -77,6 +77,7 @@ class QRRenderer {
                 }
 
                 qr.points.forEach((point, i) => {
+                    point = translate(point)
                     if (strokeStarted) {
                         ctx.lineTo(point.x, point.y);
                         ctx.stroke()
@@ -94,7 +95,8 @@ class QRRenderer {
                 })
                 
                 if (strokeStarted) {
-                    ctx.lineTo(qr.points[0].x, qr.points[0].y);
+                    const point = translate(qr.points[0])
+                    ctx.lineTo(point.x, point.y);
                     ctx.stroke();
                 }
 

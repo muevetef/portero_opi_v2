@@ -37,7 +37,9 @@ body {
 }
 
 .image-container > img {
+    max-width: 1200px;
     object-fit: cover;
+    border-radius: 10px;
 }
 
 #open-button {

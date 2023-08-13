@@ -60,13 +60,18 @@ class Camera {
                 const url = window.URL.createObjectURL(message.data);
                 this.components.image.src = url;
 
-                const imgSize = this.components.image.getBoundingClientRect()
-                // remove this shit and use dat attributes to store the original size, and letting the browser itself calculate the size. 
-                
-                if (imgSize.width > 20 && imgSize.width > 900) {
-                    this.components.image.width -= 100;
-                } else if (imgSize.width > 20 && imgSize.width < 200) {
-                    this.components.image.width += 100;
+                if (this.datastore.frame == undefined) {
+                    this.datastore.frame = 0;
+                }
+
+                this.datastore.frame++;
+                this.components.infoFrameCount.innerText = `Frame ${this.datastore.frame}`
+
+                if (this.datastore.fpsInterval == undefined) {
+                    this.datastore.fpsInterval = setInterval(() => {
+                        this.components.infoFps.innerText = `${this.datastore.frame - this.datastore._fps} fps`;
+                        this.datastore._fps = this.datastore.frame;
+                    }, 1000)
                 }
             })
         });

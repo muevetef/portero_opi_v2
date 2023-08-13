@@ -3,7 +3,13 @@ import QRRenderer from "./qr_renderer.js";
 import { delay, StatusLabel } from "./utils.js";
 
 async function handle_camera() {
+    let reconnectAttempts = 0;
     while (true) {
+        reconnectAttempts++;
+        if (reconnectAttempts > 5) {
+            alert("FEED ERROR!")
+        }
+        
         const camera = new Camera("/ws/cam", {
             image: document.getElementById("camera-feed"),
             status: new StatusLabel(document.getElementById("camera-status")),
@@ -40,7 +46,13 @@ async function handle_camera() {
 }
 
 async function handle_qr() {
+    let reconnectAttempts = 0;
     while (true) {
+        reconnectAttempts++;
+        if (reconnectAttempts > 5) {
+            alert("FEED ERROR!")
+        }
+
         const qr = new QRRenderer("/ws/qr", {
             image: document.getElementById("camera-feed"),
             canvas: document.getElementById("camera-canvas")
@@ -67,9 +79,17 @@ async function handle_qr() {
         for (let i = 5; i > 0; i--) {
             await delay(1000)
         }
+
     }
 }
 
 handle_qr()
 
 handle_camera()
+
+
+document.getElementById("open-button").addEventListener("click", () => {
+    fetch("/action/open", {
+        method: 'POST'
+    })
+});

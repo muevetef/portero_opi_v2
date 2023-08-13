@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use chrono::Utc;
-use tokio::sync::broadcast::{Receiver, Sender};
+use tokio::sync::broadcast;
 use tracing::{error, info};
 
 use opencv::{
@@ -12,12 +12,12 @@ use opencv::{
 
 use crate::{Frame, QR, Point};
 
-pub async fn run(mut frame_rx: Receiver<Arc<Frame>>, qr_tx: Sender<QR>) {
+pub async fn run(mut frame_rx: broadcast::Receiver<Arc<Frame>>, qr_tx: broadcast::Sender<QR>) {
     info!("QR scanner started");
 
     let mut last_decode = Utc::now();
 
-    const DECODE_INTERVL_MS: i64 = 500;
+    const DECODE_INTERVL_MS: i64 = 250;
 
     loop {
         let frame = match frame_rx.recv().await {
@@ -57,7 +57,6 @@ fn decode_qr(frame: &Arc<Frame>) -> anyhow::Result<Option<QR>> {
     let mut points = VectorOfPoint::new();
     let mut straight = Mat::default();
     let res = detector.detect_and_decode(&frame_data, &mut points, &mut straight)?;
-    dbg!(&frame_data, &frame_mat);
 
     if points.len() < 4 {
         return Ok(None);

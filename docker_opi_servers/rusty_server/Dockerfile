@@ -18,9 +18,10 @@ RUN apt update
 RUN apt install libzbar0 -y
 COPY --from=builder /tmp/opi/target/release/rusty_server /bin/opi/
 
+RUN mkdir /bin/opi
 WORKDIR /bin/opi
 
-COPY public .
+COPY public /bin/opi
 
 RUN chmod +x rusty_server
 

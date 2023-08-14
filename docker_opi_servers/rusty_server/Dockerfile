@@ -18,9 +18,11 @@ RUN apt update
 RUN apt install libzbar0 -y
 COPY --from=builder /tmp/opi/target/release/rusty_server /bin/opi/
 
-COPY public /bin/opi
+WORKDIR /bin/opi
 
-RUN chmod +x /bin/opi/rusty_server
+COPY public .
+
+RUN chmod +x rusty_server
 
 EXPOSE 12001
 EXPOSE 8080

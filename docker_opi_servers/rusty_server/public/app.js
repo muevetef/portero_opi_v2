@@ -8,6 +8,7 @@ async function handle_camera() {
         reconnectAttempts++;
         if (reconnectAttempts > 5) {
             alert("FEED ERROR!")
+            reconnectAttempts = 0;
         }
         
         const camera = new Camera("/ws/cam", {
@@ -51,6 +52,7 @@ async function handle_qr() {
         reconnectAttempts++;
         if (reconnectAttempts > 5) {
             alert("FEED ERROR!")
+            reconnectAttempts = 0;
         }
 
         const qr = new QRRenderer("/ws/qr", {

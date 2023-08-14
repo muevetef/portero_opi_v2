@@ -59,6 +59,12 @@ class Camera {
             this.cam_socket.addEventListener("message", (message) => {
                 const url = window.URL.createObjectURL(message.data);
                 this.components.image.src = url;
+                
+                if (this.datastore.last_frame != undefined) {
+                    window.URL.revokeObjectURL(this.datastore.last_frame)
+                }
+
+                this.datastore.last_frame = url;
 
                 if (this.datastore.frame == undefined) {
                     this.datastore.frame = 0;

@@ -61,6 +61,7 @@ class QRRenderer {
                 const ctx = this.datastore.canvas_ctx;
                 ctx.fillStyle = "#f00"
                 ctx.lineWidth = 5;
+                console.log(qr.points)
 
                 ctx.beginPath()
 

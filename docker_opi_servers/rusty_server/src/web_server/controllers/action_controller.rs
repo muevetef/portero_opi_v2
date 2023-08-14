@@ -1,7 +1,7 @@
 use axum::{Router, routing::post, response::IntoResponse, extract::State, http::StatusCode};
 use tokio::sync::mpsc;
 
-use crate::{web_server::AppState, EspMessage};
+use crate::{utils::EspMessage, web_server::AppState};
 
 pub fn routes(state: AppState) -> Router { 
     Router::new()

@@ -4,7 +4,7 @@ use chrono::Utc;
 use tokio::{net::UdpSocket, sync::broadcast::Sender};
 use tracing::{info, error};
 
-use crate::Frame;
+use crate::utils::Frame;
 
 pub async fn run(frame_sx: Sender<Arc<Frame>>) {
 
@@ -24,7 +24,7 @@ pub async fn run(frame_sx: Sender<Arc<Frame>>) {
     let frame_data = include_bytes!("full.jpg");
     let frame_flipped_data = include_bytes!("full_mirror.jpg");
     loop {
-        tokio::time::sleep(Duration::from_millis(16)).await;
+        tokio::time::sleep(Duration::from_millis(80)).await;
 
         current_frame += 1;
 

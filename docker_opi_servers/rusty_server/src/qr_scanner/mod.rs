@@ -4,51 +4,46 @@ use chrono::Utc;
 use tokio::sync::broadcast;
 use tracing::{error, info};
 
-use opencv::{
-    imgcodecs, objdetect,
-    prelude::*,
-    types::VectorOfPoint
-};
-
-use crate::{Frame, QR, Point};
+use crate::utils::{Frame, QR, Point};
 
 pub async fn run(mut frame_rx: broadcast::Receiver<Arc<Frame>>, qr_tx: broadcast::Sender<QR>) {
     info!("QR scanner started");
 
     let mut last_decode = Utc::now();
 
-    const DECODE_INTERVL_MS: i64 = 250;
+    const DECODE_INTERVL_MS: i64 = 1000;
 
     loop {
         let frame = match frame_rx.recv().await {
             Ok(frame) => frame,
             Err(err) => {
                 error!("Error while receiving frame: {err}");
-                panic!()
+                continue;
             }
         };
 
         if (Utc::now() - last_decode).num_milliseconds() < DECODE_INTERVL_MS {
             continue;
         }
-
+        let qr_tx = qr_tx.clone();
         last_decode = Utc::now();
-
-        let qr = match decode_qr(&frame) {
-            Ok(qr) => qr,
-            Err(err) => {
-                error!("Error decoding qr: {err}");
-                continue;
+        tokio::spawn(async move {
+            let qr = match decode_qr(&frame) {
+                Ok(qr) => qr,
+                Err(err) => {
+                    error!("Error decoding qr: {err}");
+                    return;
+                }
+            };
+    
+            if let Some(qr) = qr {
+                info!("Detected QR: {}", qr.code);
+                let _ = qr_tx.send(qr);
             }
-        };
-
-        if let Some(qr) = qr {
-            info!("Detected QR: {}", qr.code);
-            let _ = qr_tx.send(qr);
-        }
+        });
     }
 }
-
+/*
 fn decode_qr(frame: &Arc<Frame>) -> anyhow::Result<Option<QR>> {
     let frame_mat = Mat::from_slice::<u8>(&frame.data)?;
     let frame_data = imgcodecs::imdecode(&frame_mat, imgcodecs::IMREAD_COLOR)?;
@@ -79,4 +74,33 @@ fn decode_qr(frame: &Arc<Frame>) -> anyhow::Result<Option<QR>> {
             Err(_) => Point { x: 0, y: 0 },
         }
     }))
+}
+ */
+fn decode_qr(frame: &Arc<Frame>) -> anyhow::Result<Option<QR>> {
+    use zbar_rust::ZBarImageScanner;
+
+    use image::GenericImageView;
+    
+    let img = image::load_from_memory(&frame.data)?;
+    let (width, height) = img.dimensions();
+    
+    let mut scanner = ZBarImageScanner::new();
+    
+    let results = scanner.scan_y800(img.into_luma8().into_raw(), width, height)
+    .map_err(|_| anyhow::Error::msg("Unknown error while decoding QR"))?;
+    
+
+    if let Some(result) = results.first() {
+        return Ok(Some(QR {
+            code: String::from_utf8(result.data.clone())?,
+            timestamp: frame.timestamp,
+            points: result.points.iter().map(|p| Point {
+                x: p.0,
+                y: p.1
+            }).collect(),
+            frame_size: Point { x: width as i32, y: height as i32 },
+        }));
+    }
+
+    Ok(None)
 }

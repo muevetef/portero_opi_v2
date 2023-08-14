@@ -1,34 +1,10 @@
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
 use tracing::{info, error, Level};
 
 mod web_server;
 mod frame_receiver;
 mod qr_scanner;
 mod esp_comm;
-
-pub struct Frame {
-    pub data: Vec<u8>,
-    pub timestamp: DateTime<Utc>
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct QR {
-    pub code: String,
-    pub timestamp: DateTime<Utc>,
-    pub points: Vec<Point<i32>>,
-    pub frame_size: Point<i32>
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Point<T> {
-    pub x: T,
-    pub y: T
-}
-
-pub enum EspMessage {
-    Open
-}
+mod utils;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

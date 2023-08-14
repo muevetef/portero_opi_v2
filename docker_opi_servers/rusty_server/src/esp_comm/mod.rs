@@ -1,7 +1,7 @@
 use tokio::sync::mpsc;
 use tracing::info;
 
-use crate::EspMessage;
+use crate::utils::EspMessage;
 
 pub async fn run(mut esp_msg_rx: mpsc::Receiver<EspMessage>) {
     loop {

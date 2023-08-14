@@ -24,29 +24,41 @@ pub async fn run(frame_sx: Sender<Arc<Frame>>) {
 }
 
 async fn receive_frames(socket: UdpSocket, frame_sx: Sender<Arc<Frame>>) -> anyhow::Result<()> {
+    const PACK_SIZE: usize = 4096;
+
     loop {
         let mut buf = vec![0u8; u16::MAX as usize];
-        
-        let frame_length = {
-            let mut buf_pos = 0;
 
-            while buf_pos < 4 {
-                buf_pos += socket.recv(&mut buf[buf_pos..]).await?;
+        let total_pack = {
+            
+            loop {
+                let read = socket.recv(&mut buf).await?;
+
+                if read == std::mem::size_of::<i32>() {
+                    break;
+                }
             }
 
             i32::from_le_bytes(<[u8; 4]>::try_from(&buf[..4])?)
         };
 
         let frame = {
-            let mut buf_pos = 0;
-            
-            while buf_pos < frame_length as usize {
-                buf_pos += socket.recv(&mut buf[buf_pos..]).await?;
+            let mut buf = Vec::new();
+            buf.resize(total_pack as usize * PACK_SIZE, 0u8);
+        
+            for i in 0..total_pack as usize {
+                let read = socket.recv(&mut buf[i * PACK_SIZE..]).await?;
+
+                if read != PACK_SIZE {
+                    error!("Unexpected frame size!");
+                }
             }
 
-            &buf[..buf_pos]
+            buf
         };
 
-        frame_sx.send(Arc::new(Frame { data: frame.to_owned(), timestamp: Utc::now() }))?;
+        info!("Got frame!");
+
+        frame_sx.send(Arc::new(Frame { data: frame, timestamp: Utc::now() }))?;
     }
 }

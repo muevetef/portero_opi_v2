@@ -4,7 +4,7 @@ use axum::{extract::{WebSocketUpgrade, ConnectInfo, ws::{WebSocket, Message}, St
 use tokio::sync::broadcast::{Receiver, Sender};
 use tracing::{info, warn, debug};
 
-use crate::{web_server::AppState, Frame, QR};
+use crate::{utils::{Frame, QR}, web_server::AppState};
 
 pub fn routes(state: AppState) -> Router { 
     Router::new()

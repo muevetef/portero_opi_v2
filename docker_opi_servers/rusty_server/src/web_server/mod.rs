@@ -6,7 +6,7 @@ use tokio::sync::{broadcast, mpsc};
 use tower_http::services::ServeDir;
 use tracing::info;
 
-use crate::{Frame, QR, EspMessage};
+use crate::utils::{Frame, QR, EspMessage};
 
 mod controllers;
 

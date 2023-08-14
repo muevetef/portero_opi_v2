@@ -21,7 +21,7 @@ COPY --from=builder /tmp/opi/target/release/rusty_server /bin/opi/rusty_server
 
 WORKDIR /bin/opi
 
-COPY public /bin/opi
+COPY public /bin/opi/public
 
 RUN chmod +x rusty_server
 

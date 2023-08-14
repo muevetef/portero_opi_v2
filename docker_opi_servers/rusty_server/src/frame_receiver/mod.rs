@@ -2,7 +2,7 @@ use std::{net::SocketAddr, sync::Arc};
 
 use chrono::Utc;
 use tokio::{net::UdpSocket, sync::broadcast::Sender};
-use tracing::{error, info};
+use tracing::{error, info, debug};
 
 use crate::utils::Frame;
 
@@ -57,7 +57,7 @@ async fn receive_frames(socket: UdpSocket, frame_sx: Sender<Arc<Frame>>) -> anyh
             buf
         };
 
-        info!("Got frame!");
+        debug!("Got frame!");
 
         frame_sx.send(Arc::new(Frame { data: frame, timestamp: Utc::now() }))?;
     }

@@ -103,11 +103,12 @@ class QRRenderer {
 
                 if (this.datastore.clearTimeout != undefined) {
                     clearTimeout(this.datastore.clearTimeout)
-
-                    this.datastore.clearTimeout = setTimeout(() => {
-                        ctx.clearRect(0, 0, this.components.canvas.width, this.components.canvas.height)
-                    }, 1000)
                 }
+
+                this.datastore.clearTimeout = setTimeout(() => {
+                    console.log("CLEARING QR CANVAS")
+                    ctx.clearRect(0, 0, this.components.canvas.width, this.components.canvas.height)
+                }, 1000)
             })
         });
 

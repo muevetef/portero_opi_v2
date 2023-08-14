@@ -11,7 +11,7 @@ pub async fn run(mut frame_rx: broadcast::Receiver<Arc<Frame>>, qr_tx: broadcast
 
     let mut last_decode = Utc::now();
 
-    const DECODE_INTERVL_MS: i64 = 1000;
+    const DECODE_INTERVL_MS: i64 = 250;
 
     loop {
         let frame = match frame_rx.recv().await {

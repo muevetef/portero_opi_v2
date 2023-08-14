@@ -16,9 +16,9 @@ FROM ubuntu
 RUN mkdir -p /bin/opi
 RUN apt update
 RUN apt install libzbar0 -y
-COPY --from=builder /tmp/opi/target/release/rusty_server /bin/opi/
-
 RUN mkdir /bin/opi
+COPY --from=builder /tmp/opi/target/release/rusty_server /bin/opi/rusty_server
+
 WORKDIR /bin/opi
 
 COPY public /bin/opi

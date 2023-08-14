@@ -13,10 +13,10 @@ RUN cargo build --release
 
 FROM ubuntu
 
-RUN mkdir -p /bin/opi
+RUN mkdir -p /bin/opi/
 RUN apt update
 RUN apt install libzbar0 -y
-RUN mkdir /bin/opi
+
 COPY --from=builder /tmp/opi/target/release/rusty_server /bin/opi/rusty_server
 
 WORKDIR /bin/opi

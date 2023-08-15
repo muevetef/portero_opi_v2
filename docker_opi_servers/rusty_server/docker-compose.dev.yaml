@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  db:
+    container_name: portero-db
+    image: postgres
+    restart: unless-stopped
+    networks:
+      - portero_net
+    environment:
+      - POSTGRES_PASSWORD=root
+    ports:
+      - 5432:5432
+  
+  pgadmin:
+    container_name: portero-pgadmin
+    image: dpage/pgadmin4
+    networks:
+      - portero_net
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=dev@dev.dev
+      - PGADMIN_DEFAULT_PASSWORD=dev
+    ports:
+      - 5543:80
+
+networks:
+  portero_net:

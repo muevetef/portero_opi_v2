@@ -1,31 +1,33 @@
 use std::{net::SocketAddr, sync::Arc};
 
-use axum::{Router, extract::FromRef};
+use axum::Router;
+use sea_orm::DatabaseConnection;
 use tokio::sync::{broadcast, mpsc};
 
 use tower_http::services::ServeDir;
 use tracing::info;
 
-use crate::utils::{Frame, QR, EspMessage};
+use crate::{utils::{Frame, QR, EspMessage}, web_server::utils::AppState};
 
 mod controllers;
+mod utils;
+mod error;
 
-#[derive(Clone, FromRef)]
-pub struct AppState {
-    pub frame_tx: Arc<broadcast::Sender<Arc<Frame>>>,
-    pub qr_tx: Arc<broadcast::Sender<QR>>,
-    pub esp_msg_tx: mpsc::Sender<EspMessage>
-}
-
-pub async fn run(frame_tx: broadcast::Sender<Arc<Frame>>, qr_tx: broadcast::Sender<QR>, esp_msg_tx: mpsc::Sender<EspMessage>) {
+pub async fn run(
+    frame_tx: broadcast::Sender<Arc<Frame>>, 
+    qr_tx: broadcast::Sender<QR>, 
+    esp_msg_tx: mpsc::Sender<EspMessage>,
+    db: DatabaseConnection
+) {
     let state = AppState {
         frame_tx: Arc::new(frame_tx),
         qr_tx: Arc::new(qr_tx),
-        esp_msg_tx
+        esp_msg_tx,
+        db
     };
     
     let app = Router::new()
-        .merge(controllers::routes(state))
+        .nest("/api/", controllers::routes(state))
         .fallback_service(ServeDir::new("public").append_index_html_on_directories(true));
     
     let addr = SocketAddr::from(([0,0,0,0], 8080));

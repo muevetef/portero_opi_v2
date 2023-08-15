@@ -1,16 +1,17 @@
-use std::{net::SocketAddr, sync::Arc};
+use std::{net::SocketAddr, time::Duration, sync::Arc};
 
 use chrono::Utc;
 use tokio::{net::UdpSocket, sync::broadcast::Sender};
-use tracing::{error, info, debug};
+use tracing::{info, error};
 
 use crate::utils::Frame;
 
 pub async fn run(frame_sx: Sender<Arc<Frame>>) {
 
-    let socket_addr = SocketAddr::from(([0,0,0,0], 12001));
+    let socket_addr = SocketAddr::from(([0,0,0,0], 12000));
+    let mut current_frame = 0;
 
-    let socket = match UdpSocket::bind(&socket_addr).await {
+    let _socket = match UdpSocket::bind(&socket_addr).await {
         Ok(socket) => socket,
         Err(err) => {
             error!("Error binding frame_receiver udp socket: {err}");
@@ -18,47 +19,35 @@ pub async fn run(frame_sx: Sender<Arc<Frame>>) {
         },
     };
 
-    info!("Started frame_receiver udp socket. Listening on udp://{socket_addr}");
+    info!("Frame receiver started, listening on {socket_addr}");
 
-    receive_frames(socket, frame_sx).await.unwrap();
-}
-
-async fn receive_frames(socket: UdpSocket, frame_sx: Sender<Arc<Frame>>) -> anyhow::Result<()> {
-    const PACK_SIZE: usize = 4096;
-
+    let frame_data = include_bytes!("full.jpg");
+    let frame_flipped_data = include_bytes!("full_mirror.jpg");
     loop {
-        let mut buf = vec![0u8; u16::MAX as usize];
+        tokio::time::sleep(Duration::from_millis(80)).await;
 
-        let total_pack = {
-            
-            loop {
-                let read = socket.recv(&mut buf).await?;
+        current_frame += 1;
 
-                if read == std::mem::size_of::<i32>() {
-                    break;
-                }
-            }
-
-            i32::from_le_bytes(<[u8; 4]>::try_from(&buf[..4])?)
+        let data = if (200..400).contains(&current_frame) {
+            frame_flipped_data.to_vec()
+        } else if current_frame < 200 {
+            frame_data.to_vec()
+        } else {
+            current_frame = 0;
+            frame_data.to_vec()
         };
 
-        let frame = {
-            let mut buf = Vec::new();
-            buf.resize(total_pack as usize * PACK_SIZE, 0u8);
-        
-            for i in 0..total_pack as usize {
-                let read = socket.recv(&mut buf[i * PACK_SIZE..]).await?;
-
-                if read != PACK_SIZE {
-                    error!("Unexpected frame size!");
-                }
-            }
-
-            buf
+        let frame = Frame {
+            data,
+            timestamp: Utc::now(),
         };
 
-        debug!("Got frame!");
-
-        frame_sx.send(Arc::new(Frame { data: frame, timestamp: Utc::now() }))?;
+        match frame_sx.send(Arc::new(frame)) {
+            Ok(_) => (),
+            Err(err) => {
+                error!("Error sending frame: {err}");
+                continue;
+            }
+        }
     }
 }
